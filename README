@@ -1,0 +1,13 @@
+# Godville Graph Extension
+
+Godville Graph Extension is an extension that adds a new graph with the gold saved each day
+
+## Installation
+
+You can use [Tampermonkey](https://www.tampermonkey.net) to run the userscript located [here](https://raw.githubusercontent.com/dinisafonsopinto/Godville-Graph-Extension/refs/heads/main/tampermonkey.fetcher.js).
+
+After installing Tampermonkey, click on the extension from your extension list and click "Create a new script...". Afterwards, import the [tampermonkey fetcher](https://raw.githubusercontent.com/dinisafonsopinto/Godville-Graph-Extension/refs/heads/main/tampermonkey.fetcher.js) to the new file and save it.
+
+## Usage
+
+It automatically loads the graph when the [Godville Stats page](https://stats.godvillegame.com/me) is opened.

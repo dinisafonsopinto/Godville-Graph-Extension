@@ -99,8 +99,9 @@ console.log("original_data:", original_data);
   // chart drawing logic
   const ctx = canvas.getContext("2d");
   const padding = 50;
-  const chartWidth = canvas.width - padding * 2;
-  const chartHeight = canvas.height - padding * 2;
+  const padding_top = 10;
+  const chartWidth = canvas.width - padding;
+  const chartHeight = canvas.height - padding - padding_top ;
 
   const maxVal = Math.max(...data, 10);
   const barWidth = chartWidth / labels.length;
@@ -115,9 +116,9 @@ console.log("original_data:", original_data);
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(padding, padding);
+    ctx.moveTo(padding, padding_top);
     ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.lineTo(canvas.width, canvas.height - padding);
     ctx.stroke();
 
     bars.length = 0;
@@ -135,7 +136,7 @@ console.log("original_data:", original_data);
     });
 
     // x labels
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = getComputedStyle(document.body).color;
     ctx.font = "10px sans-serif";
     labels.forEach((label, i) => {
       if (i % 2 === 0) {

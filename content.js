@@ -31,8 +31,8 @@ function dayDifference(arr) {
   return diffDays;
 }
 function savingsDifference(arr) {
-  const firstSaving = new Date(arr[0]);
-  const lastSaving = new Date(arr[arr.length - 1]);
+  const firstSaving = arr[0];
+  const lastSaving = arr[arr.length - 1];
   return lastSaving - firstSaving;
 }
 

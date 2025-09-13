@@ -44,15 +44,18 @@ function savingsDifference(arr) {
   const lastSaving = arr[arr.length - 1];
   return lastSaving - firstSaving;
 }
-function arrayMedian(arr) {
+function arrayStats(arr) {
   console.log(arr);
   if (arr.length === 0) return 0;
-  const sortedArray = [...arr].sort();
+  const sortedArray = [...arr].sort((a, b) => a - b);
   sortedArray.shift(); // removes the first day entry, since it's always 0
   const index = Math.floor(sortedArray.length / 2);
-  return sortedArray.length % 2
+  const median = sortedArray.length % 2
     ? sortedArray[index]
     : (sortedArray[index - 1] + sortedArray[index]) / 2;
+  const min = sortedArray[0];
+  const max = sortedArray[sortedArray.length - 1];
+  return {min, median, max};
 }
 
 (function () {
@@ -81,8 +84,9 @@ function arrayMedian(arr) {
 
   const valueSpan = document.createElement("span");
   valueSpan.classList.add("v");
+  const stats = arrayStats(daily_savings);
   valueSpan.textContent = 
-    `Average: ${(savingsDifference(absolute_savings)/dayDifference(labels)).toFixed(2)} Median: ${arrayMedian(daily_savings)}`;
+    `Average: ${(savingsDifference(absolute_savings)/dayDifference(labels)).toFixed(2)} | Min: ${stats.min} | Median: ${stats.median} | Max: ${stats.max}`;
 
   savingsDiv.appendChild(labelSpan);
   savingsDiv.appendChild(valueSpan);
@@ -158,6 +162,21 @@ function arrayMedian(arr) {
 
       bars.push({ x, y, w: barWidth * 0.8, h: height, label: labels[i], value: val });
     });
+
+    // draw a horizontal guide at the top of the highlighted bar
+    if (highlightIndex !== null && bars[highlightIndex]) {
+      const guideY = bars[highlightIndex].y;
+      ctx.save();
+      ctx.strokeStyle = "#FF9933";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(padding, guideY + 0.5); // +0.5 for crisper 1px line
+      ctx.lineTo(canvas.width - 5, guideY + 0.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
 
     // x labels
     ctx.fillStyle = getComputedStyle(document.body).color;

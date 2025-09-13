@@ -24,6 +24,7 @@ if (script) {
   }
 }
 function dayDifference(arr) {
+  if (arr.length === 0) return 0;
   const firstDate = new Date(arr[0]);
   const lastDate = new Date(arr[arr.length - 1]);
   const diffTime = lastDate - firstDate;
@@ -31,6 +32,7 @@ function dayDifference(arr) {
   return diffDays;
 }
 function savingsDifference(arr) {
+  if (arr.length === 0) return 0;
   const firstSaving = arr[0];
   const lastSaving = arr[arr.length - 1];
   return lastSaving - firstSaving;
@@ -62,7 +64,7 @@ console.log("original_data:", original_data);
 
   const labelSpan = document.createElement("span");
   labelSpan.classList.add("c");
-  labelSpan.textContent = "Savings Delta";
+  labelSpan.textContent = "Savings Per Day";
 
   const valueSpan = document.createElement("span");
   valueSpan.classList.add("v");
@@ -121,6 +123,22 @@ console.log("original_data:", original_data);
     ctx.lineTo(canvas.width, canvas.height - padding);
     ctx.stroke();
 
+    // horizontal grid lines (draw behind bars)
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,0,0,0.12)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 3]);
+    for (let j = 0; j <= 5; j++) {
+      const value = (maxVal / 5) * j;
+      const y = canvas.height - padding - (value / maxVal) * chartHeight;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(canvas.width - 5, y);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+
     bars.length = 0;
 
     // bars
@@ -150,7 +168,9 @@ console.log("original_data:", original_data);
       }
     });
 
-    // y labels
+    // y labels (small ticks only)
+    ctx.fillStyle = getComputedStyle(document.body).color;
+    ctx.font = "10px sans-serif";
     for (let j = 0; j <= 5; j++) {
       const value = (maxVal / 5) * j;
       const y = canvas.height - padding - (value / maxVal) * chartHeight;
@@ -158,6 +178,8 @@ console.log("original_data:", original_data);
       ctx.beginPath();
       ctx.moveTo(padding - 5, y);
       ctx.lineTo(padding, y);
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 1;
       ctx.stroke();
     }
   }

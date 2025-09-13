@@ -1,4 +1,4 @@
-let labels, original_data;
+let labels, absolute_savings;
 
 const script = document.querySelector('#savings + div > script');
 if (script) {
@@ -17,12 +17,19 @@ if (script) {
       const dataObj = JSON.parse(dataStr);
 
       labels = dataObj.labels;
-      original_data = dataObj.datasets[0].data;
+      absolute_savings = dataObj.datasets[0].data;
     } catch (e) {
       console.error("Failed to parse data:", e);
     }
   }
 }
+let previous = absolute_savings[0];
+const daily_savings = absolute_savings.map((num) => {
+  const ret = num - previous;
+  previous = num;
+  return ret;
+});
+
 function dayDifference(arr) {
   if (arr.length === 0) return 0;
   const firstDate = new Date(arr[0]);
@@ -37,10 +44,16 @@ function savingsDifference(arr) {
   const lastSaving = arr[arr.length - 1];
   return lastSaving - firstSaving;
 }
-
-console.log("labels:", labels);
-console.log("original_data:", original_data);
-
+function arrayMedian(arr) {
+  console.log(arr);
+  if (arr.length === 0) return 0;
+  const sortedArray = [...arr].sort();
+  sortedArray.shift(); // removes the first day entry, since it's always 0
+  const index = Math.floor(sortedArray.length / 2);
+  return sortedArray.length % 2
+    ? sortedArray[index]
+    : (sortedArray[index - 1] + sortedArray[index]) / 2;
+}
 
 (function () {
   const wrapper = document.getElementById("wrapper");
@@ -68,7 +81,8 @@ console.log("original_data:", original_data);
 
   const valueSpan = document.createElement("span");
   valueSpan.classList.add("v");
-  valueSpan.textContent = `Average savings per day: ${(savingsDifference(original_data)/dayDifference(labels)).toFixed(2)}`;
+  valueSpan.textContent = 
+    `Average: ${(savingsDifference(absolute_savings)/dayDifference(labels)).toFixed(2)} Median: ${arrayMedian(daily_savings)}`;
 
   savingsDiv.appendChild(labelSpan);
   savingsDiv.appendChild(valueSpan);
@@ -91,13 +105,6 @@ console.log("original_data:", original_data);
 
   wrapper.insertBefore(statDiv, h2Tag);
 
-  let previous = original_data[0];
-  const data = original_data.map((num) => {
-    const ret = num - previous;
-    previous = num;
-    return ret;
-  });
-
   // chart drawing logic
   const ctx = canvas.getContext("2d");
   const padding = 50;
@@ -105,7 +112,7 @@ console.log("original_data:", original_data);
   const chartWidth = canvas.width - padding;
   const chartHeight = canvas.height - padding - padding_top ;
 
-  const maxVal = Math.max(...data, 10);
+  const maxVal = Math.max(...daily_savings, 10);
   const barWidth = chartWidth / labels.length;
 
   // bar hitboxes
@@ -127,7 +134,6 @@ console.log("original_data:", original_data);
     ctx.save();
     ctx.strokeStyle = "rgba(0,0,0,0.12)";
     ctx.lineWidth = 1;
-    ctx.setLineDash([4, 3]);
     for (let j = 0; j <= 5; j++) {
       const value = (maxVal / 5) * j;
       const y = canvas.height - padding - (value / maxVal) * chartHeight;
@@ -142,7 +148,7 @@ console.log("original_data:", original_data);
     bars.length = 0;
 
     // bars
-    data.forEach((val, i) => {
+    daily_savings.forEach((val, i) => {
       const x = padding + i * barWidth + (barWidth * 0.2) / 2;
       const height = (val / maxVal) * chartHeight;
       const y = canvas.height - padding - height;

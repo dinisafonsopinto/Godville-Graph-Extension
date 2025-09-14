@@ -57,6 +57,31 @@ function arrayStats(arr) {
   const max = sortedArray[sortedArray.length - 1];
   return {min, median, max};
 }
+function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
+  if (maxValue <= 0) return [];
+
+  // Calculate a rough step size
+  let roughStep = maxValue / ((minPartitions + maxPartitions) / 2);
+
+  // Find a "nice" step size
+  let magnitude = Math.pow(5, Math.floor(Math.log10(roughStep)));
+  let residual = roughStep / magnitude;
+  const niceStep = Math.max(1, Math.ceil(residual)) * magnitude;
+  
+  // Calculate partitions
+  const amountOfPartitions = Math.ceil(maxValue / niceStep);
+
+  if (minPartitions === maxPartitions) return niceStep;
+  // Adjust if too many/too few partitions
+  if (amountOfPartitions < minPartitions) {
+    return getNicePartitions(maxValue, minPartitions, maxPartitions + 1);
+  }
+  if (amountOfPartitions > maxPartitions) {
+    return getNicePartitions(maxValue, minPartitions + 1, maxPartitions);
+  }
+
+  return niceStep;
+}
 
 (function () {
   const wrapper = document.getElementById("wrapper");
@@ -123,6 +148,8 @@ function arrayStats(arr) {
   const bars = [];
 
   function drawChart(highlightIndex = null) {
+    const step = getNicePartitions(stats.max);
+    const maxY = Math.ceil(maxVal / step) * step;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // axes
@@ -138,9 +165,9 @@ function arrayStats(arr) {
     ctx.save();
     ctx.strokeStyle = "rgba(0,0,0,0.12)";
     ctx.lineWidth = 1;
-    for (let j = 0; j <= 5; j++) {
-      const value = (maxVal / 5) * j;
-      const y = canvas.height - padding - (value / maxVal) * chartHeight;
+    for (let j = 0; step * j <= maxY; j++) {
+      const value = step * j;
+      const y = canvas.height - padding - (value / maxY) * chartHeight;
       ctx.beginPath();
       ctx.moveTo(padding, y);
       ctx.lineTo(canvas.width - 5, y);
@@ -154,7 +181,7 @@ function arrayStats(arr) {
     // bars
     daily_savings.forEach((val, i) => {
       const x = padding + i * barWidth + (barWidth * 0.2) / 2;
-      const height = (val / maxVal) * chartHeight;
+      const height = (val / maxY) * chartHeight;
       const y = canvas.height - padding - height;
 
       ctx.fillStyle = i === highlightIndex ? "#FF9933" : "#3366CC";
@@ -196,9 +223,9 @@ function arrayStats(arr) {
     // y labels (small ticks only)
     ctx.fillStyle = getComputedStyle(document.body).color;
     ctx.font = "10px sans-serif";
-    for (let j = 0; j <= 5; j++) {
-      const value = (maxVal / 5) * j;
-      const y = canvas.height - padding - (value / maxVal) * chartHeight;
+    for (let j = 0; step * j <= maxY; j++) {
+      const value = step * j;
+      const y = canvas.height - padding - (value / maxY) * chartHeight;
       ctx.fillText(Math.round(value), padding - 30, y + 5);
       ctx.beginPath();
       ctx.moveTo(padding - 5, y);

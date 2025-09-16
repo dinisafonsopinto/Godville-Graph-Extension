@@ -67,7 +67,7 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
   let magnitude = Math.pow(5, Math.floor(Math.log10(roughStep)));
   let residual = roughStep / magnitude;
   const niceStep = Math.max(1, Math.ceil(residual)) * magnitude;
-  
+
   // Calculate partitions
   const amountOfPartitions = Math.ceil(maxValue / niceStep);
 
@@ -110,7 +110,7 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
   const valueSpan = document.createElement("span");
   valueSpan.classList.add("v");
   const stats = arrayStats(daily_savings);
-  valueSpan.textContent = 
+  valueSpan.textContent =
     `Average: ${(savingsDifference(absolute_savings)/dayDifference(labels)).toFixed(2)} | Min: ${stats.min} | Median: ${stats.median} | Max: ${stats.max}`;
 
   savingsDiv.appendChild(labelSpan);
@@ -122,7 +122,7 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
   const canvas = document.createElement("canvas");
   canvas.id = "chart-5-2";
   canvas.classList.add("chart");
-  const {width, height} = document.getElementById('chart-5')
+  const {width, height} = document.getElementById('chart-5');
   canvas.width = width;
   canvas.height = height;
   canvas.style.cssText = document.getElementById('chart-5').style.cssText;
@@ -138,8 +138,9 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
   const ctx = canvas.getContext("2d");
   const padding = 50;
   const padding_top = 10;
+  const padding_left = 8;
   const chartWidth = canvas.width - padding;
-  const chartHeight = canvas.height - padding - padding_top ;
+  const chartHeight = canvas.height - padding - padding_top;
 
   const maxVal = Math.max(...daily_savings, 10);
   const barWidth = chartWidth / labels.length;
@@ -153,12 +154,18 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // axes
-    ctx.strokeStyle = "#333";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(0,0,0,0.12)";
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.moveTo(padding, padding_top);
+    ctx.moveTo(canvas.width, canvas.height - padding);
     ctx.lineTo(padding, canvas.height - padding);
-    ctx.lineTo(canvas.width, canvas.height - padding);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(0,0,0,0.12)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, canvas.height - padding);
+    ctx.lineTo(padding, padding_top);
     ctx.stroke();
 
     // horizontal grid lines (draw behind bars)
@@ -169,7 +176,7 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
       const value = step * j;
       const y = canvas.height - padding - (value / maxY) * chartHeight;
       ctx.beginPath();
-      ctx.moveTo(padding, y);
+      ctx.moveTo(padding - 12, y);
       ctx.lineTo(canvas.width - 5, y);
       ctx.stroke();
     }
@@ -206,7 +213,7 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
     }
 
     // x labels
-    ctx.fillStyle = getComputedStyle(document.body).color;
+    ctx.fillStyle = "#646464";
     ctx.font = "10px sans-serif";
     labels.forEach((label, i) => {
       if (i % 2 === 0) {
@@ -221,18 +228,12 @@ function getNicePartitions(maxValue, minPartitions = 4, maxPartitions = 6) {
     });
 
     // y labels (small ticks only)
-    ctx.fillStyle = getComputedStyle(document.body).color;
-    ctx.font = "10px sans-serif";
+    ctx.fillStyle = "#646464";
+    ctx.font = "14px sans-serif";
     for (let j = 0; step * j <= maxY; j++) {
       const value = step * j;
       const y = canvas.height - padding - (value / maxY) * chartHeight;
-      ctx.fillText(Math.round(value), padding - 30, y + 5);
-      ctx.beginPath();
-      ctx.moveTo(padding - 5, y);
-      ctx.lineTo(padding, y);
-      ctx.strokeStyle = "#333";
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      ctx.fillText(Math.round(value), padding_left, y + 5);
     }
   }
 

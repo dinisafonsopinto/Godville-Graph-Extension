@@ -30,13 +30,16 @@ const daily_savings = absolute_savings.map((num) => {
   return ret;
 });
 
+daily_savings.shift();
+labels.shift();
+
 function dayDifference(arr) {
   if (arr.length === 0) return 0;
   const firstDate = new Date(arr[0]);
   const lastDate = new Date(arr[arr.length - 1]);
   const diffTime = lastDate - firstDate;
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
-  return diffDays;
+  return diffDays + 2; // +1 to include the end date as well, and +1 due to 'labels.shift()'
 }
 function savingsDifference(arr) {
   if (arr.length === 0) return 0;

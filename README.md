@@ -14,7 +14,6 @@ After installing Tampermonkey, click on the extension from your extension list a
 
 It automatically loads the graph when the [Godville Stats page](https://stats.godvillegame.com/me) is opened.
 
-## Disclamer
+## Notes
 
-As of 11th of September 2025, this extension is awaiting approval from the Godville developers.
-
+As of 14th of September 2025, this extension has approval from the Godville developers to be used and distributed between players.

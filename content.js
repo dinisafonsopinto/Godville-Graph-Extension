@@ -24,7 +24,7 @@ if (script) {
   }
 }
 let previous = absolute_savings[0];
-const daily_savings = absolute_savings.map((num) => {
+let daily_savings = absolute_savings.map((num) => {
   const ret = num - previous;
   previous = num;
   return ret;
@@ -32,6 +32,69 @@ const daily_savings = absolute_savings.map((num) => {
 
 daily_savings.shift();
 labels.shift();
+
+// === NEW SECTION: Fill missing dates and distribute values ===
+
+function parseDate(str) {
+  const parts = str.split('-');
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  return new Date(year, month, day);
+}
+
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = (date.getMonth() + 1).toString().padStart(2, '0');
+  const d = date.getDate().toString().padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+let filledLabels = [];
+let filledDaily = [];
+
+for (let i = 0; i < labels.length - 1; i++) {
+  const currentLabel = labels[i];
+  const nextLabel = labels[i + 1];
+  
+  const currentDate = parseDate(currentLabel);
+  const nextDate = parseDate(nextLabel);
+  
+  // Calculate difference in days
+  const diffDays = Math.round((nextDate - currentDate) / (1000 * 60 * 60 * 24));
+
+  // Push current day’s data
+  filledLabels.push(currentLabel);
+  filledDaily.push(daily_savings[i]);
+
+  // If there are missing days (gap > 1 day)
+  if (diffDays > 1) {
+    const totalToDistribute = daily_savings[i + 1];
+    const evenShare = Math.floor(totalToDistribute / diffDays);
+    const remainder = totalToDistribute % diffDays;
+
+    // Fill the missing dates with the base share
+    for (let d = 1; d < diffDays; d++) {
+      const newDate = new Date(currentDate);
+      newDate.setDate(currentDate.getDate() + d);
+      
+      filledLabels.push(formatDate(newDate));
+      filledDaily.push(evenShare);
+    }
+
+    // Update the NEXT existing point to use the new distributed value (+ the remainder).
+    // (the main loop will handle pushing this in the next iteration)
+    daily_savings[i + 1] = evenShare + remainder;
+  }
+}
+
+// Include the very last point (which has now potentially been updated with a distributed value)
+filledLabels.push(labels[labels.length - 1]);
+filledDaily.push(daily_savings[daily_savings.length - 1]);
+
+// Replace originals
+labels = filledLabels;
+daily_savings = filledDaily;
 
 function dayDifference(arr) {
   if (arr.length === 0) return 0;
